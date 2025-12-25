@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import restaurantImg from '../assets/restaurant-img.jpg';
 import logo from '../assets/logo.png';
 import Login from '../components/auth/Login';
-import Register from '../components/auth/register';
+import Register from '../components/auth/Register';
 
 const Auth = () => {
 

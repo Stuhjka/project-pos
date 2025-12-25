@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import BottomNav from '../components/shared/BottomNav';
 import BackButton from '../components/shared/BackButton';
 // FaUserCircle gw hapus karena gak dipake
@@ -18,7 +18,7 @@ const Menu = () => {
     const customerData = useSelector(state => state.customer);
 
     return (
-        <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden flex gap-3">
+        <section className="bg-[#1f1f1f] overflow-hidden h-full min-h-0 flex gap-3">
 
             {/*left div*/}
             <div className="flex-[3]">
@@ -45,20 +45,17 @@ const Menu = () => {
             </div>
             
             {/*right div*/}
-            <div className="flex-[1] bg-[#1a1a1a] mt-4 mr-3 h-[780px] rounded-lg pt-2">
+            <div className="flex-[1] bg-[#1a1a1a] my-4 mr-3 rounded-lg pt-2 flex flex-col min-h-0">
                 {/* {Customer info} */}
                 <CustomerInfo />
                 <hr className='border-[#2a2a2a] border-t-2' />
-                {/* Cart Items */}
-                <hr className='border-[#2a2a2a] border-t-2' />
-                <CartInfo />
+                <div className='grow min-h-0'>
+                    <CartInfo />
+                </div>
                 <hr className='border-[#2a2a2a] border-t-2' />
                 {/* Bills */}
                 <Bill />
-
             </div>
-
-            <BottomNav />
         </section>
     )
 }

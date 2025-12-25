@@ -72,7 +72,7 @@ export const popularDishes = [
         name: 'Rogan Josh',
         numberOfOrders: 160,
     },
-];
+]; // udah nggak
 
 export const tables = [
     { id: 1, name: "Table 1", status: "Booked", initial: "AM", seats: 4 },

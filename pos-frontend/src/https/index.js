@@ -17,3 +17,11 @@ export const logout = () => api.post("/api/user/logout");
 
 export const addTable = (data) => api.post("/api/table/", data);
 export const getTables = () => api.get("/api/table");
+export const updateTable = ({ tableId, ...tableData }) =>
+ api.put(`/api/table/${tableId}`, tableData);
+
+export const addOrder = (data) => api.post("/api/order/", data);
+export const getOrders = () => api.get("/api/order");
+export const updateOrderStatus = ({ orderId, orderStatus }) =>
+  api.put(`/api/order/${orderId}`, { orderStatus });
+export const getPopular = () => api.get("/api/order/popular")

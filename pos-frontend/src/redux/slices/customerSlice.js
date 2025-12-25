@@ -30,6 +30,7 @@ const customerSlice = createSlice({
         
         updateTable: (state, action) => {
             state.tableNo = action.payload.tableNo
+            state.tableId =  action.payload.tableId
         }
     }
 })

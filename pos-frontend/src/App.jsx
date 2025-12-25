@@ -5,7 +5,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "r
 import Menu from "./pages/Menu";
 import { useSelector } from "react-redux";
 import useLoadData from "../hooks/useLoadData";
-import FullScreenLoader from "./components/shared/FullscreenLoader";
+import FullScreenLoader from "./components/shared/FullScreenLoader";
+import BottomNav from "./components/shared/BottomNav";
 
 function ProtectedRoutes({children}) {
   const {isAuth} = useSelector(state => state.user); 
@@ -18,61 +19,81 @@ function ProtectedRoutes({children}) {
 } 
 
 function Layout() {
-  const location = useLocation(); 
-  const hideHeaderPaths = ["/auth"]; 
-  const isLoading = useLoadData()
-  // 👇 Perbaikan 3: Typo yang sama kayak di atas, ganti '=' jadi '=>'
-  const { isAuth } = useSelector(state => state.user);
+  const location = useLocation();
+  const hideHeaderPaths = ["/auth"];
+  const isLoading = useLoadData();
+  const { isAuth } = useSelector((state) => state.user);
 
-  if(isLoading) return <FullScreenLoader />
+  if (isLoading) return <FullScreenLoader />;
+
+  const hideChrome = hideHeaderPaths.includes(location.pathname);
 
   return (
-    <>
-      {!hideHeaderPaths.includes(location.pathname) && <Header />}
+    <div className="flex flex-col h-dvh min-h-0">
+      {!hideChrome && <Header />}
+
+      <div className="flex-1 min-h-0">
         <Routes>
-          <Route path="/" element={
-            <ProtectedRoutes>
-              <Home />
-            </ProtectedRoutes>
-          } />
-          
-          {/* Logic ini udah bener: Kalau udah login (isAuth), lempar balik ke Home, jangan kasih akses ke Auth page lagi */}
-          <Route path="/auth" element={isAuth ? <Navigate to="/" /> : <Auth />} />
-          
-          <Route path="/orders" element={
-            <ProtectedRoutes>
-              <Orders />
-            </ProtectedRoutes>
-          } />
-          <Route path="/tables" element={
-            <ProtectedRoutes>
-              <Tables />
-            </ProtectedRoutes>
-          } />
           <Route
-           path="/menu"
-           element={<ProtectedRoutes>
-              <Menu />
-           </ProtectedRoutes>
-          } 
+            path="/"
+            element={
+              <ProtectedRoutes>
+                <Home />
+              </ProtectedRoutes>
+            }
           />
+
+          <Route path="/auth" element={isAuth ? <Navigate to="/" replace /> : <Auth />} />
+
           <Route
-           path="/dashboard"
-           element={<ProtectedRoutes>
-              <Dashboard />
-           </ProtectedRoutes>
-          } 
+            path="/orders"
+            element={
+              <ProtectedRoutes>
+                <Orders />
+              </ProtectedRoutes>
+            }
           />
+
+          <Route
+            path="/tables"
+            element={
+              <ProtectedRoutes>
+                <Tables />
+              </ProtectedRoutes>
+            }
+          />
+
+          <Route
+            path="/menu"
+            element={
+              <ProtectedRoutes>
+                <Menu />
+              </ProtectedRoutes>
+            }
+          />
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoutes>
+                <Dashboard />
+              </ProtectedRoutes>
+            }
+          />
+
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
-    </>
+      </div>
+
+      {!hideChrome && <BottomNav />}
+    </div>
   );
 }
 
 function App() {
   return (
     <Router>
-      <Layout />
+       <Layout />
     </Router>
   )
 }

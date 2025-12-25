@@ -24,14 +24,14 @@ const CartInfo = () => {
     }
 
     return (
-        <div className='px-4 py-2'>
+        <div className='px-4 py-2 flex flex-col h-full min-h-0'>
             <h1 className='text-lg text-[#e4e4e4] font-semibold tracking-wide'>
                 Order Details
             </h1>
             
             {/* 👇 CONTAINER SCROLL (REF DITEMPEL DISINI) */}
             <div 
-                className='mt-4 overflow-y-scroll scrollbar-hide h-[380px]' 
+                className='mt-4 overflow-y-auto scrollbar-hide flex-1 min-h-0' 
                 ref={scrollRef}
             >
                 {cartData.length === 0 ? (

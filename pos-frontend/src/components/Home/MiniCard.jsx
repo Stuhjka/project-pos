@@ -11,7 +11,7 @@ const MiniCard = ({ title, icon, number, footerNum }) => {
         </button>
       </div>
       <div>
-        <h1 className='text-[#f5f5f5] text-4xl font-bold mt-5'>{title === "Total Earnings" 
+        <h1 className='text-[#f5f5f5] text-3xl font-bold mt-5'>{title === "Total Earnings" 
                 ? `Rp ${number.toLocaleString('id-ID')}`  // Pake ini biar ada titiknya (Rp 512.000)
                 : number}</h1>
         <h1 className='text-[#f5f5f5] text-lg mt-2'><span className='text-[#02ca3a]'>{footerNum}%</span> than yesterday</h1>
