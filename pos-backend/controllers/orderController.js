@@ -1,6 +1,6 @@
 const Order = require("../models/orderModel");
 const createHttpError = require("http-errors");
-const mongoose = require("mongoose"); // 👈 WAJIB DITAMBAHIN BIAR GAK CRASH
+const mongoose = require("mongoose");
 
 const addOrder = async (req, res, next) => {
     try {
@@ -15,8 +15,6 @@ const addOrder = async (req, res, next) => {
 const getOrderById = async (req, res, next) => {
     try {
         const { id } = req.params;
-
-        // 👇 PERBAIKAN: Huruf 'i' KECIL
         if(!mongoose.Types.ObjectId.isValid(id)){
             const error = createHttpError(400, "Invalid order ID");
             return next(error);
@@ -29,7 +27,6 @@ const getOrderById = async (req, res, next) => {
         }
 
         res.status(200).json({success: true, data: order}); 
-
     } catch (error) {
         next(error);
     }
@@ -37,8 +34,9 @@ const getOrderById = async (req, res, next) => {
 
 const getOrders = async (req, res, next) => {
     try {
-        const orders = await Order.find().populate('table');
-        res.status(200).json({data: orders});
+        // Sort createdAt: -1 biar orderan terbaru muncul paling atas
+        const orders = await Order.find().populate('table').sort({ createdAt: -1 });
+        res.status(200).json({success: true, data: orders});
     } catch (error) {
         next(error);
     }
@@ -49,7 +47,6 @@ const updateOrder = async (req, res, next) => {
         const { orderStatus } = req.body;
         const { id } = req.params;
         
-        // 👇 PERBAIKAN: Huruf 'i' KECIL
         if(!mongoose.Types.ObjectId.isValid(id)){
             const error = createHttpError(400, "Invalid order ID");
             return next(error);
@@ -57,8 +54,8 @@ const updateOrder = async (req, res, next) => {
 
         const order = await Order.findByIdAndUpdate(
             id,
-            {orderStatus},
-            {new: true}
+            { orderStatus },
+            { new: true }
         )
 
         if (!order) {
@@ -75,27 +72,23 @@ const updateOrder = async (req, res, next) => {
 
 const getMostOrderedItems = async (req, res, next) => {
   try {
-    const limit = Number(req.query.limit) || 10; // /stats/top-items?limit=5
+    const limit = Number(req.query.limit) || 10; 
 
     const result = await Order.aggregate([
-      // optional: filter status tertentu aja
-      // { $match: { orderStatus: "Completed" } },
-
       { $unwind: "$items" },
-
       {
         $group: {
           _id: "$items.name",
-          totalQty: { $sum: "$items.quantity" },             // jumlah unit terjual
-          totalOrders: { $sum: 1 },                          // berapa kali item muncul (bukan order unik)
-          totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }, // omzet item
-          avgPrice: { $avg: "$items.price" },
+          totalQty: { $sum: "$items.quantity" },            
+          totalOrders: { $sum: 1 },                          
+          // Hati-hati: Pastikan 'price' di items adalah harga satuan. 
+          // Kalau dari frontend dikirim harga total, logic ini harus disesuaikan.
+          totalRevenue: { $sum: { $multiply: ["$items.quantity", "$items.pricePerQuantity"] } }, 
+          avgPrice: { $avg: "$items.pricePerQuantity" },
         },
       },
-
       { $sort: { totalQty: -1 } },
       { $limit: limit },
-
       {
         $project: {
           _id: 0,
@@ -113,6 +106,5 @@ const getMostOrderedItems = async (req, res, next) => {
     next(error);
   }
 };
-
 
 module.exports = { addOrder, getOrderById, getOrders, updateOrder, getMostOrderedItems };

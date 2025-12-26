@@ -1,7 +1,6 @@
 const createHttpError = require("http-errors");
 const Table = require("../models/tableModel");
-const mongoose = require("mongoose"); // ✅ Udah ada, aman.
-
+const mongoose = require("mongoose"); 
 
 const addTable = async (req, res, next) => {
     try {
@@ -15,7 +14,7 @@ const addTable = async (req, res, next) => {
         const isTablePresent = await Table.findOne({table: tableNo});
 
         if(isTablePresent){
-            const error = createHttpError(409, "Table already exist!"); // Ganti 409 biar standard
+            const error = createHttpError(409, "Table already exist!"); 
             return next(error);
         }
 
@@ -41,21 +40,32 @@ const getTables = async (req, res, next) => {
     }
 }
 
+// 👇 UPDATE UPDATE UPDATE 👇
 const updateTable = async (req, res, next) => {
     try {
-        const {status, orderId } = req.body;
-        const { id } = req.params;
+        const { seats, tableNo, status, orderId } = req.body;
+        
+        // 👇 LOGIC PINTAR: Cek ID di body dulu, kalo gak ada baru cek di URL (params)
+        let id = req.body.id;
+        if (!id) {
+            id = req.params.id; 
+        }
 
-        // 👇 PERBAIKAN: Huruf 'i' KECIL pada isValid
-        if(!mongoose.Types.ObjectId.isValid(id)){
+        // Validasi ID
+        if(!id || !mongoose.Types.ObjectId.isValid(id)){
             const error = createHttpError(400, "Invalid table ID");
             return next(error);
         }
 
         const table = await Table.findByIdAndUpdate(
             id,
-            {status, currentOrder: orderId},
-            {new: true}
+            { 
+                seats: seats,       
+                table: tableNo,     
+                status: status,     
+                currentOrder: orderId 
+            },
+            { new: true }
         );
 
         if(!table){
@@ -70,4 +80,20 @@ const updateTable = async (req, res, next) => {
     }
 }
 
-module.exports = { addTable, getTables, updateTable }
+const deleteTable = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const table = await Table.findByIdAndDelete(id);
+        
+        if(!table) {
+            const error = createHttpError(404, "Table not found");
+            return next(error);
+        }
+
+        res.status(200).json({ success: true, message: "Table deleted successfully" });
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { addTable, getTables, updateTable, deleteTable };

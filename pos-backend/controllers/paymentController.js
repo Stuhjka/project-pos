@@ -18,13 +18,16 @@ const createPayment = async (req, res, next) => {
           email: payment.email,
           contact: payment.contact,
           createdAt: new Date(payment.created_at * 1000) 
-        })
+        });
 
         await newPayment.save();
-      }
+      
 
       res.json({ success: true });
+
   } catch (error) {
     next(error);
   }
 };
+
+module.exports = { createPayment };

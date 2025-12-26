@@ -6,6 +6,8 @@ const globalErrorHandler = require("./middleware/globalErrorHandler");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors"); // 👈 1. IMPORT INI
+const categoryRoutes = require("./routes/categoryRoute");
+const dishRoutes = require("./routes/dishRoute");
 
 // Middleware 
 // 👇 2. PASANG INI (PENTING BANGET!)
@@ -29,6 +31,8 @@ app.get("/", (req,res) => {
 app.use("/api/user", require("./routes/userRoute"));
 app.use("/api/order", require("./routes/orderRoute"));
 app.use("/api/table", require("./routes/tableRoute"));
+app.use("/api/category", categoryRoutes);
+app.use("/api/dish", dishRoutes);
 
 // Global Error Handler 
 app.use(globalErrorHandler)
@@ -36,3 +40,4 @@ app.use(globalErrorHandler)
 app.listen(PORT, () => {
     console.log(`POS Server is listening on port ${PORT}`);
 })
+
