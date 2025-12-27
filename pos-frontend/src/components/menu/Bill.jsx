@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getTotalPrice, removeAllItems } from '../../redux/slices/cartSlice'
 import { enqueueSnackbar } from 'notistack';
 import { useMutation } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ const Bill = () => {
   const [showInvoice, setShowInvoice] = React.useState(false);
   const [orderInfo, setOrderInfo] = React.useState();
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { GrRadialSelected } from 'react-icons/gr';
 import { FaShoppingCart, FaSpinner, FaStar } from 'react-icons/fa';
-import { useDispatch } from 'react-redux';
-import { addItems } from '../../redux/slices/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItems, updateItem } from '../../redux/slices/cartSlice';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories, getDishes } from '../../https';
 
@@ -20,10 +20,12 @@ const MenuContainer = () => {
         queryFn: getDishes
     });
 
+    const cartData = useSelector(state => state.cart);
+
     // 2. STATE LOKAL
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [itemCount, setItemCount] = useState(0);
-    const [itemId, setItemId] = useState(0); 
+    const [itemId, setItemId] = useState(0);
 
     // 3. EFFECT: SET DEFAULT CATEGORY
     useEffect(() => {
@@ -51,24 +53,36 @@ const MenuContainer = () => {
     };
 
     const handleAddToCart = (item) => {
-        if(itemCount === 0) {
-            alert("Please select quantity first!"); 
+        if (itemCount === 0) {
+            alert("Please select quantity first!");
             return;
         }
 
         const { title, price, image, _id } = item;
-        
-        const newObj = {
-            id: new Date().getTime(), 
-            name: title,
-            pricePerQuantity: price, 
-            quantity: itemCount, 
-            price: price * itemCount,
-            image: image,
-            productId: _id
-        };
 
-        dispatch(addItems(newObj));
+        const dishes = cartData.find((dish) => dish.productId === _id)
+
+        // console.log("dishes : ", dishes);
+
+        if (dishes) {
+            dispatch(updateItem({
+                productId: _id,
+                quantity: dishes.quantity + itemCount,
+                price: dishes.price + (price * itemCount)
+            }));
+        } else {
+            const newObj = {
+                id: new Date().getTime(),
+                name: title,
+                pricePerQuantity: price,
+                quantity: itemCount,
+                price: price * itemCount,
+                image: image,
+                productId: _id
+            };
+
+            dispatch(addItems(newObj));
+        }
         setItemCount(0);
         setItemId(0);
     };
@@ -85,21 +99,21 @@ const MenuContainer = () => {
 
     return (
         <div className="w-full h-full flex flex-col">
-            
+
             {/* --- BAGIAN ATAS (KATEGORI) --- */}
             <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 px-6 md:px-10 py-4 w-full'>
                 {categoriesData?.data?.data?.map((cat) => {
                     const isSelected = selectedCategory?._id === cat._id;
                     return (
-                        <div 
+                        <div
                             key={cat._id}
                             className={`flex flex-col items-start justify-between p-3 rounded-lg h-[90px] cursor-pointer transition-all duration-200 relative overflow-hidden group 
                             ${isSelected ? 'scale-105 shadow-lg border-2 border-white' : 'hover:scale-105 border border-transparent'}`}
                             style={{ backgroundColor: cat.bgColor || '#1f1f1f' }}
                             onClick={() => {
                                 setSelectedCategory(cat);
-                                setItemId(0);     
-                                setItemCount(0); 
+                                setItemId(0);
+                                setItemCount(0);
                             }}
                         >
                             <div className='flex items-center justify-between w-full relative z-10'>
@@ -110,7 +124,7 @@ const MenuContainer = () => {
                                     <GrRadialSelected className='text-white' size={16} />
                                 )}
                             </div>
-                            
+
                             <p className='text-white/70 text-xs font-medium relative z-10'>
                                 {dishesData?.data?.data?.filter(d => d.category?._id === cat._id).length} Items
                             </p>
@@ -128,7 +142,7 @@ const MenuContainer = () => {
                     filteredDishes.map((item) => {
                         const isActive = itemId === item._id;
                         return (
-                            <div 
+                            <div
                                 key={item._id}
                                 className='flex flex-col justify-between p-5 rounded-xl min-h-[160px] cursor-pointer bg-[#1a1a1a] border border-[#333] hover:border-yellow-500 hover:bg-[#202020] transition-all duration-200 relative group'
                             >
@@ -155,18 +169,18 @@ const MenuContainer = () => {
 
                                     {/* COUNTER BUTTONS */}
                                     <div className='flex items-center bg-[#2a2a2a] rounded-lg p-1 gap-1'>
-                                        <button 
+                                        <button
                                             onClick={() => decrement(item._id)}
                                             className='text-gray-400 hover:text-white w-7 h-7 flex items-center justify-center text-lg font-bold hover:bg-black/30 rounded transition-colors'
                                         >
                                             &minus;
                                         </button>
-                                        
+
                                         <span className='text-white font-bold text-sm min-w-[20px] text-center'>
                                             {isActive ? itemCount : "0"}
                                         </span>
 
-                                        <button 
+                                        <button
                                             onClick={() => increment(item._id)}
                                             className='text-yellow-500 hover:text-yellow-400 w-7 h-7 flex items-center justify-center text-lg font-bold hover:bg-black/30 rounded transition-colors'
                                         >
@@ -177,8 +191,8 @@ const MenuContainer = () => {
 
                                 {/* 👇 BUTTON ADD TO CART (FIX: SUDAH TIDAK GERAK LAGI) */}
                                 {isActive && itemCount > 0 && (
-                                    <button 
-                                        onClick={() => handleAddToCart(item)} 
+                                    <button
+                                        onClick={() => handleAddToCart(item)}
                                         className='absolute -top-3 -right-3 bg-[#02ca3a] text-white w-10 h-10 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform z-20'
                                     >
                                         <FaShoppingCart size={16} />

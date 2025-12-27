@@ -5,7 +5,7 @@ import { MdCategory, MdTableBar } from 'react-icons/md'
 import Metrics from '../components/dashboard/Metrics';
 import RecentOrders from '../components/dashboard/RecentOrders';
 import Modal from '../components/dashboard/Modal';
-import MenuManagement from '../components/dashboard/menuManagement.jsx';
+import MenuManagement from '../components/dashboard/MenuManagement';
 import TableManagement from '../components/dashboard/TableManagement'; // 👈 Import TableManagement
 
 const buttons = [

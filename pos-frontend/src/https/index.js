@@ -30,6 +30,9 @@ export const addOrder = (data) => api.post("/api/order/", data);
 export const getOrders = () => api.get("/api/order");
 export const updateOrderStatus = ({ orderId, orderStatus }) => api.put(`/api/order/${orderId}`, { orderStatus });
 export const getPopular = () => api.get("/api/order/popular");
+export const getDashboardCashier = () => api.get("/api/order/dashboard/cashier");
+export const getDashboardAdmin = () => api.get("/api/order/dashboard/admin");
+
 
 // 4. CATEGORY
 export const addCategory = (data) => api.post("/api/category", data);

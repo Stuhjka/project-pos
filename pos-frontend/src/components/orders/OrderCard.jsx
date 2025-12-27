@@ -35,7 +35,7 @@ const OrderCard = ({
         });
     };
     return (
-        <div className="w-full bg-[#262626] p-4 rounded-lg mb-4" onClick={() => handleDetail()}>
+        <div className="w-full bg-[#262626] p-4 rounded-lg mb-4 h-fit" onClick={() => handleDetail()}>
             <div className="flex items-center gap-5">
                 <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg min-w-[60px] min-h-[60px]">
                     {getInitials(customerName)}

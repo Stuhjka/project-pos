@@ -153,10 +153,10 @@ export const menus = [
 
 export const metricsData = [
     // 👇 GANTI SYMBOL DI SINI (dari ₹ jadi Rp)
-    { title: "Revenue", value: "Rp 50.846.000", percentage: "12%", color: "#025cca", isIncrease: false },
-    { title: "Outbound Clicks", value: "10,342", percentage: "16%", color: "#02ca3a", isIncrease: true },
-    { title: "Total Customer", value: "19,720", percentage: "10%", color: "#f6b100", isIncrease: true },
-    { title: "Event Count", value: "20,000", percentage: "10%", color: "#be3e3f", isIncrease: false },
+    { title: "Revenue", value: "revenue", percentage: "12%", color: "#025cca", isIncrease: false },
+    { title: "Total Orders", value: "totalOrders", percentage: "16%", color: "#02ca3a", isIncrease: true },
+    { title: "Total Cash", value: "cashTotal", percentage: "10%", color: "#f6b100", isIncrease: true },
+    { title: "Total Online", value: "onlineTotal", percentage: "10%", color: "#be3e3f", isIncrease: false },
 ];
 
 export const itemsData = [
