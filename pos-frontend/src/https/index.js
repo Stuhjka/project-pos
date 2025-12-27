@@ -4,8 +4,6 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
     withCredentials: true,
     headers: {
-        // 👇 JANGAN DI-HARDCODE JSON DISINI BIAR UPLOAD GAMBAR BISA JALAN
-        // "Content-Type": "application/json", 
         Accept: "application/json",
     }
 })
@@ -21,17 +19,18 @@ export const logout = () => api.post("/api/user/logout");
 // 2. TABLES
 export const addTable = (data) => api.post("/api/table/", data);
 export const getTables = () => api.get("/api/table");
-// Logic ini aman, ID dikirim di URL, data lain di Body
-export const updateTable = ({ tableId, ...tableData }) => api.put(`/api/table/${tableId}`, tableData);
+// Memperbaiki parameter destructuring agar ID masuk ke URL dengan benar
+export const updateTable = ({ id, payload }) => api.put(`/api/table/${id}`, payload);
 export const deleteTable = (id) => api.delete(`/api/table/${id}`);
 
-// 3. ORDERS (Checkout)
+// 3. ORDERS
 export const addOrder = (data) => api.post("/api/order/", data);
-export const getOrders = () => api.get("/api/order");
+// 👇 SEKARANG BISA TERIMA FILTER (Contoh: { filter: 'today' })
+export const getOrders = (params) => api.get("/api/order", { params });
 export const updateOrderStatus = ({ orderId, orderStatus }) => api.put(`/api/order/${orderId}`, { orderStatus });
 export const getPopular = () => api.get("/api/order/popular");
 export const getDashboardCashier = () => api.get("/api/order/dashboard/cashier");
-export const getDashboardAdmin = () => api.get("/api/order/dashboard/admin");
+export const getDashboardAdmin = (params) => api.get("/api/order/dashboard/admin", { params });
 
 
 // 4. CATEGORY
@@ -39,10 +38,8 @@ export const addCategory = (data) => api.post("/api/category", data);
 export const getCategories = () => api.get("/api/category");
 export const deleteCategory = (id) => api.delete(`/api/category/${id}`);
 
-// 5. DISHES (Upload Gambar Pake FormData)
-export const addDish = (data) => api.post("/api/dish", data); // Axios otomatis tau ini FormData
+// 5. DISHES
+export const addDish = (data) => api.post("/api/dish", data); 
 export const getDishes = () => api.get("/api/dish");
 export const deleteDish = (id) => api.delete(`/api/dish/${id}`);
-
-// 👇 TAMBAHIN INI YA MEN (PENTING BUAT EDIT HARGA)
-export const updateDish = (data) => api.put(`/api/dish/${data.id}`, data.payload);
+export const updateDish = ({ id, payload }) => api.put(`/api/dish/${id}`, payload);

@@ -1,176 +1,176 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTables, deleteTable, updateTable } from '../../https'; // 👈 Import updateTable
-import { FaTrash, FaChair, FaPen } from 'react-icons/fa'; // 👈 Import FaPen
+import { getTables, deleteTable, updateTable } from '../../https'; 
+import { FaTrash, FaChair, FaPen } from 'react-icons/fa'; 
 import { MdTableRestaurant } from "react-icons/md";
+import { IoMdClose } from 'react-icons/io';
 import { enqueueSnackbar } from 'notistack';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TableManagement = () => {
     const queryClient = useQueryClient();
     
-    // State buat Edit Modal
+    // --- STATE EDIT MODAL ---
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [editingTable, setEditingTable] = useState(null);
     const [newSeats, setNewSeats] = useState("");
 
+    // --- 1. AMBIL DATA ---
     const { data: tables, isLoading } = useQuery({
         queryKey: ["tables"],
         queryFn: getTables
     });
 
-    // --- MUTATION DELETE ---
+    // --- 2. MUTATION DELETE ---
     const deleteMutation = useMutation({
         mutationFn: deleteTable,
         onSuccess: () => {
             queryClient.invalidateQueries(["tables"]); 
-            enqueueSnackbar("Table deleted!", { variant: "success" });
+            enqueueSnackbar("Table deleted successfully!", { variant: "success" });
         },
-        onError: (err) => enqueueSnackbar(err.response?.data?.message, { variant: "error" })
+        onError: (err) => enqueueSnackbar(err.response?.data?.message || "Error deleting table", { variant: "error" })
     });
 
-    // --- MUTATION UPDATE ---
+    // --- 3. MUTATION UPDATE ---
     const updateMutation = useMutation({
         mutationFn: updateTable,
         onSuccess: () => {
             queryClient.invalidateQueries(["tables"]);
-            enqueueSnackbar("Table updated!", { variant: "success" });
-            setIsEditOpen(false); // Tutup modal edit
+            enqueueSnackbar("Table capacity updated!", { variant: "success" });
+            setIsEditOpen(false); 
         },
-        onError: (err) => enqueueSnackbar(err.response?.data?.message, { variant: "error" })
+        onError: (err) => enqueueSnackbar(err.response?.data?.message || "Update failed", { variant: "error" })
     });
 
-    // Handle Klik Tombol Delete
+    // --- 4. HANDLERS ---
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this table?")) {
             deleteMutation.mutate(id);
         }
     };
 
-    // Handle Klik Tombol Edit (Buka Modal)
     const handleEditClick = (table) => {
         setEditingTable(table);
-        setNewSeats(table.seats); // Isi default dengan kursi yg sekarang
+        setNewSeats(table.seats); 
         setIsEditOpen(true);
     };
 
-    // Handle Save Edit
     const handleSaveEdit = (e) => {
         e.preventDefault();
-        // Panggil API Update
         updateMutation.mutate({
             id: editingTable._id,
-            seats: newSeats,
-            // Kita kirim ulang data lama biar gak ilang/berubah
-            tableNo: editingTable.table, 
-            status: editingTable.status
+            payload: {
+                seats: Number(newSeats),
+                tableNo: editingTable.tableNo || editingTable.table, 
+                status: editingTable.status
+            }
         });
     };
 
-    if (isLoading) return <div className="text-white p-10">Loading tables...</div>;
+    if (isLoading) return <div className="text-white p-10 flex items-center gap-2"><div className="animate-spin h-5 w-5 border-2 border-yellow-500 border-t-transparent rounded-full"></div> Loading tables...</div>;
 
     return (
-        <div className='container mx-auto py-2 px-6 md:px-4'>
+        <div className='container mx-auto py-6 px-6'>
             
-            <div className='mb-6'>
-                <h2 className='font-semibold text-[#f5f5f5] text-xl'>Manage Tables</h2>
-                <p className='text-sm text-[#ababab]'>View and manage your restaurant tables.</p>
+            <div className='mb-8'>
+                <h2 className='font-bold text-[#f5f5f5] text-2xl'>Table Management</h2>
+                <p className='text-sm text-[#ababab] mt-1'>Update seat capacities and manage your floor plan.</p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 {tables?.data?.data?.map((table) => (
-                    <div key={table._id} className="bg-[#1f1f1f] p-4 rounded-xl border border-[#333] relative group hover:border-yellow-500 transition-all flex flex-col items-center justify-center gap-2 shadow-sm">
+                    <div key={table._id} className="bg-[#1f1f1f] p-5 rounded-2xl border border-[#333] relative group hover:border-yellow-500 transition-all flex flex-col items-center shadow-lg">
                         
                         {/* --- TOMBOL ACTION (DELETE & EDIT) --- */}
-                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {/* Tombol Edit */}
+                        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                             <button 
                                 onClick={() => handleEditClick(table)}
-                                className="bg-[#2a2a2a] p-1.5 rounded-full text-blue-400 hover:text-blue-300 hover:bg-[#333]"
+                                className="bg-[#2a2a2a] p-2 rounded-xl text-blue-400 hover:text-white hover:bg-blue-500 transition-all shadow-md"
                                 title="Edit Seats"
                             >
-                                <FaPen size={10} />
+                                <FaPen size={12} />
                             </button>
-                            {/* Tombol Delete */}
                             <button 
                                 onClick={() => handleDelete(table._id)}
-                                className="bg-[#2a2a2a] p-1.5 rounded-full text-red-500 hover:text-red-400 hover:bg-[#333]"
+                                className="bg-[#2a2a2a] p-2 rounded-xl text-red-500 hover:text-white hover:bg-red-500 transition-all shadow-md"
                                 title="Delete Table"
                             >
-                                <FaTrash size={10} />
+                                <FaTrash size={12} />
                             </button>
                         </div>
 
-                        <div className="bg-[#2a2a2a] p-3 rounded-full text-yellow-500 mb-1">
-                            <MdTableRestaurant size={24} />
+                        <div className="bg-[#2a2a2a] p-4 rounded-2xl text-yellow-500 mb-3 border border-[#333]">
+                            <MdTableRestaurant size={32} />
                         </div>
 
                         <div className="text-center w-full">
-                            <h3 className="text-white font-bold text-base truncate">Table {table.tableNo || table.table}</h3>
-                            <div className="flex items-center justify-center gap-1.5 text-gray-400 text-xs mt-1">
-                                <FaChair size={10} />
-                                <span>{table.seats} Seats</span>
+                            <h3 className="text-white font-black text-lg">T-{table.tableNo || table.table}</h3>
+                            <div className="flex items-center justify-center gap-2 text-gray-400 text-xs mt-1">
+                                <FaChair size={10} className="text-yellow-500/50" />
+                                <span className="font-medium">{table.seats} Seats</span>
                             </div>
                             
-                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded mt-2 inline-block border ${
+                            <div className={`mt-3 py-1 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider inline-block border ${
                                 table.status === 'Occupied' 
                                 ? 'bg-red-500/10 text-red-500 border-red-500/20' 
                                 : 'bg-green-500/10 text-green-500 border-green-500/20'
                             }`}>
-                                {table.status || "Free"}
-                            </span>
+                                {table.status || "Available"}
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* --- MODAL KECIL BUAT EDIT (INLINE) --- */}
-            {isEditOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-[#262626] p-6 rounded-xl border border-[#333] w-full max-w-sm shadow-2xl"
-                    >
-                        <h3 className="text-white text-lg font-bold mb-4">Edit Table {editingTable?.table}</h3>
-                        
-                        <form onSubmit={handleSaveEdit}>
-                            <div className="mb-4">
-                                <label className="block text-[#ababab] text-sm mb-2">Number of Seats</label>
-                                <div className="bg-[#1f1f1f] px-4 py-3 rounded-lg border border-[#333] flex items-center">
-                                    <FaChair className="text-gray-500 mr-3" />
-                                    <input 
-                                        type="number" 
-                                        value={newSeats}
-                                        onChange={(e) => setNewSeats(e.target.value)}
-                                        className="bg-transparent text-white w-full focus:outline-none font-bold"
-                                        min="1"
-                                        required
-                                    />
-                                </div>
-                            </div>
+            {/* --- MODAL EDIT (INLINE) --- */}
+            <AnimatePresence>
+                {isEditOpen && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-[#1a1a1a] p-8 rounded-3xl border border-[#333] w-full max-w-sm shadow-2xl relative"
+                        >
+                            <button 
+                                onClick={() => setIsEditOpen(false)}
+                                className="absolute top-6 right-6 text-gray-500 hover:text-white"
+                            >
+                                <IoMdClose size={24} />
+                            </button>
 
-                            <div className="flex gap-3 mt-6">
-                                <button 
-                                    type="button"
-                                    onClick={() => setIsEditOpen(false)}
-                                    className="flex-1 py-2 rounded-lg text-gray-400 hover:bg-[#333] transition"
-                                >
-                                    Cancel
-                                </button>
+                            <h3 className="text-white text-xl font-black mb-1">Edit Table {editingTable?.tableNo || editingTable?.table}</h3>
+                            <p className="text-[#ababab] text-sm mb-6">Update seat capacity for this table.</p>
+                            
+                            <form onSubmit={handleSaveEdit}>
+                                <div className="mb-6">
+                                    <label className="block text-[#f5f5f5] text-xs font-bold uppercase tracking-widest mb-3">Seat Capacity</label>
+                                    <div className="bg-[#222] px-4 py-4 rounded-2xl border border-[#333] flex items-center focus-within:border-yellow-500 transition-all">
+                                        <FaChair className="text-yellow-500 mr-4" size={20} />
+                                        <input 
+                                            type="number" 
+                                            value={newSeats}
+                                            onChange={(e) => setNewSeats(e.target.value)}
+                                            className="bg-transparent text-white w-full focus:outline-none font-black text-lg"
+                                            min="1"
+                                            required
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+
                                 <button 
                                     type="submit"
                                     disabled={updateMutation.isPending}
-                                    className="flex-1 py-2 rounded-lg bg-yellow-500 text-black font-bold hover:bg-yellow-400 transition"
+                                    className="w-full py-4 rounded-2xl bg-yellow-500 text-black font-black hover:bg-yellow-400 transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
                                 >
-                                    {updateMutation.isPending ? "Saving..." : "Save"}
+                                    {updateMutation.isPending ? "SAVING..." : "UPDATE TABLE"}
                                 </button>
-                            </div>
-                        </form>
-                    </motion.div>
-                </div>
-            )}
-
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

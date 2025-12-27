@@ -59,10 +59,7 @@ const MenuContainer = () => {
         }
 
         const { title, price, image, _id } = item;
-
         const dishes = cartData.find((dish) => dish.productId === _id)
-
-        // console.log("dishes : ", dishes);
 
         if (dishes) {
             dispatch(updateItem({
@@ -80,7 +77,6 @@ const MenuContainer = () => {
                 image: image,
                 productId: _id
             };
-
             dispatch(addItems(newObj));
         }
         setItemCount(0);
@@ -133,79 +129,72 @@ const MenuContainer = () => {
                 })}
             </div>
 
-            {/* --- GARIS PEMBATAS --- */}
             <hr className='border-[#2a2a2a] border-t-2 mt-1 mx-10' />
 
-            {/* --- BAGIAN BAWAH (LIST MAKANAN) --- */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 px-6 md:px-10 py-6 w-full pb-24 overflow-y-auto scrollbar-hide'>
+            {/* --- BAGIAN BAWAH (LIST MAKANAN - NO IMAGE VERSION) --- */}
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-6 md:px-10 py-6 w-full pb-24 overflow-y-auto scrollbar-hide'>
                 {filteredDishes?.length > 0 ? (
                     filteredDishes.map((item) => {
                         const isActive = itemId === item._id;
                         return (
                             <div
                                 key={item._id}
-                                className='flex flex-col justify-between p-5 rounded-xl min-h-[160px] cursor-pointer bg-[#1a1a1a] border border-[#333] hover:border-yellow-500 hover:bg-[#202020] transition-all duration-200 relative group'
+                                className='flex flex-col justify-between p-4 rounded-xl min-h-[150px] cursor-pointer bg-[#1a1a1a] border border-[#333] hover:border-yellow-500 hover:bg-[#202020] transition-all duration-200 relative group shadow-md'
                             >
-                                {/* HEADER: NAMA & RATING */}
-                                <div className='flex items-start justify-between w-full mb-2 gap-2'>
-                                    <h1 className='text-[#e4e4e4] text-lg font-bold leading-snug line-clamp-2 group-hover:text-yellow-500 transition-colors'>
-                                        {item.title}
-                                    </h1>
-                                    <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded text-[10px] text-yellow-500 font-bold border border-[#333]">
-                                        <FaStar size={10} /> {item.rating || 4.5}
+                                {/* INFO UTAMA */}
+                                <div>
+                                    <div className='flex items-start justify-between w-full mb-1 gap-2'>
+                                        <h1 className='text-[#e4e4e4] text-sm font-bold leading-tight line-clamp-2 group-hover:text-yellow-500 transition-colors'>
+                                            {item.title}
+                                        </h1>
+                                        <div className="flex items-center gap-1 text-[10px] text-yellow-500 font-bold shrink-0">
+                                            <FaStar size={10} /> {item.rating || 4.5}
+                                        </div>
                                     </div>
+                                    
+                                    <p className="text-gray-500 text-[10px] line-clamp-2 mt-2 leading-relaxed">
+                                        {item.description || "No description available."}
+                                    </p>
                                 </div>
 
-                                {/* DESCRIPTION */}
-                                <p className="text-gray-500 text-xs line-clamp-2 mb-4 leading-relaxed">
-                                    {item.description || "No description available."}
-                                </p>
-
                                 {/* FOOTER: HARGA & ACTIONS */}
-                                <div className='flex items-center justify-between w-full mt-auto pt-3 border-t border-[#2a2a2a] group-hover:border-[#333]'>
-                                    <p className='text-[#f6b100] text-lg font-bold tracking-tight'>
+                                <div className='flex items-center justify-between w-full mt-4 pt-3 border-t border-[#2a2a2a]'>
+                                    <p className='text-[#f6b100] text-sm font-bold'>
                                         Rp {item.price.toLocaleString('id-ID')}
                                     </p>
 
                                     {/* COUNTER BUTTONS */}
                                     <div className='flex items-center bg-[#2a2a2a] rounded-lg p-1 gap-1'>
                                         <button
-                                            onClick={() => decrement(item._id)}
-                                            className='text-gray-400 hover:text-white w-7 h-7 flex items-center justify-center text-lg font-bold hover:bg-black/30 rounded transition-colors'
-                                        >
-                                            &minus;
-                                        </button>
-
-                                        <span className='text-white font-bold text-sm min-w-[20px] text-center'>
+                                            onClick={(e) => { e.stopPropagation(); decrement(item._id); }}
+                                            className='text-gray-400 hover:text-white w-6 h-6 flex items-center justify-center text-lg'
+                                        >&minus;</button>
+                                        <span className='text-white font-bold text-xs min-w-[15px] text-center'>
                                             {isActive ? itemCount : "0"}
                                         </span>
-
                                         <button
-                                            onClick={() => increment(item._id)}
-                                            className='text-yellow-500 hover:text-yellow-400 w-7 h-7 flex items-center justify-center text-lg font-bold hover:bg-black/30 rounded transition-colors'
-                                        >
-                                            &#43;
-                                        </button>
+                                            onClick={(e) => { e.stopPropagation(); increment(item._id); }}
+                                            className='text-yellow-500 hover:text-yellow-400 w-6 h-6 flex items-center justify-center text-lg'
+                                        >&#43;</button>
                                     </div>
                                 </div>
 
-                                {/* 👇 BUTTON ADD TO CART (FIX: SUDAH TIDAK GERAK LAGI) */}
+                                {/* ADD TO CART BUTTON */}
                                 {isActive && itemCount > 0 && (
                                     <button
                                         onClick={() => handleAddToCart(item)}
-                                        className='absolute -top-3 -right-3 bg-[#02ca3a] text-white w-10 h-10 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform z-20'
+                                        className='absolute -top-2 -right-2 bg-[#02ca3a] text-white w-9 h-9 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform z-20'
                                     >
-                                        <FaShoppingCart size={16} />
+                                        <FaShoppingCart size={14} />
                                     </button>
                                 )}
                             </div>
                         )
                     })
                 ) : (
-                    // EMPTY STATE
                     <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
                         <span className="text-5xl mb-4 opacity-50">🍽️</span>
-                        <p className="text-lg font-medium">No dishes found.</p>
+                        <p className="text-lg font-medium text-white">No dishes found in this category.</p>
                     </div>
                 )}
             </div>

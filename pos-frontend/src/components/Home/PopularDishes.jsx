@@ -3,7 +3,6 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getPopular } from '../../https';
 
 const PopularDishes = () => {
-
     const { data: resData, isLoading } = useQuery({
         queryKey: ["popular"],
         queryFn: getPopular,
@@ -30,8 +29,12 @@ const PopularDishes = () => {
                 <div className="overflow-y-auto scrollbar-hide flex-1 min-h-0 py-2">
                     {populars.length > 0 ? (
                         populars.map((dish, index) => {
-                            // Formatting ranking: 1 jadi 01
                             const ranking = (index + 1) < 10 ? `0${index + 1}` : index + 1;
+                            
+                            // 👇 LOGIC FIX: Ambil gambar dari properti yang tepat
+                            // Kadang backend ngirim di dish.image atau dish.dishDetails.image
+                            console.log("Data Dish:", dish); // Cek di inspect element browser!
+                            const displayImage = dish.dishDetails?.image || dish.image || "https://placehold.co/100x100?text=Food";
 
                             return (
                                 <div key={index}
@@ -45,9 +48,11 @@ const PopularDishes = () => {
                                     {/* IMAGE AREA */}
                                     <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[#333] shrink-0 bg-[#2a2a2a]">
                                         <img
-                                            src={dish.image || "https://placehold.co/100x100?text=Food"} 
+                                            src={displayImage} 
                                             alt={dish.name} 
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform" 
+                                            // Handle error jika link Cloudinary bermasalah
+                                            onError={(e) => { e.target.src = "https://placehold.co/100x100?text=Error"; }}
                                         />
                                     </div>
 
