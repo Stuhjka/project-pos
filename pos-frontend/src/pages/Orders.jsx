@@ -57,8 +57,8 @@ const Orders = () => {
 
       {/* --- CONTENT GRID --- */}
       {/* Ditambah pt-0 biar jarak ke judul gak kejauhan */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide p-6 md:p-10 pt-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {
           isLoading ? (
             // Loading State

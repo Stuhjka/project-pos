@@ -35,7 +35,7 @@ const RecentOrders = () => {
     };
 
     return (
-        <div className="bg-[#262626] p-4 rounded-xl border border-[#333] flex flex-col">
+        <div className="bg-[#262626] p-4 rounded-xl border border-[#333] h-full flex flex-col">
             
             {/* Header */}
             <div className='flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4'>
@@ -83,7 +83,7 @@ const RecentOrders = () => {
             </div>
 
             {/* Grid Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
                 {isLoading ? (
                     <div className="col-span-full flex flex-col items-center justify-center text-gray-500 py-10">
                         <FaSpinner className="animate-spin text-2xl mb-2 text-yellow-500" />

@@ -70,14 +70,14 @@ const TableManagement = () => {
     if (isLoading) return <div className="text-white p-10 flex items-center gap-2"><div className="animate-spin h-5 w-5 border-2 border-yellow-500 border-t-transparent rounded-full"></div> Loading tables...</div>;
 
     return (
-        <div className='container mx-auto py-6 px-6'>
+        <div className='container mx-auto py-6 px-6 h-full flex flex-col min-h-0'>
             
             <div className='mb-8'>
                 <h2 className='font-bold text-[#f5f5f5] text-2xl'>Table Management</h2>
                 <p className='text-sm text-[#ababab] mt-1'>Update seat capacities and manage your floor plan.</p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
                 {tables?.data?.data?.map((table) => (
                     <div key={table._id} className="bg-[#1f1f1f] p-5 rounded-2xl border border-[#333] relative group hover:border-yellow-500 transition-all flex flex-col items-center shadow-lg">
                         

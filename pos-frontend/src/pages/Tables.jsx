@@ -42,7 +42,7 @@ const Tables = () => {
   const queryClient = useQueryClient();
 
   const tableUpdateMutation = useMutation({
-    mutationFn: (reqData) => updateTable(reqData),
+    mutationFn: (reqData) => updateTable(reqData.tableId, reqData),
     onSuccess: (resData) => {
       enqueueSnackbar("Table status change successfully", { variant: "success" });
       closeTableModal()
@@ -99,6 +99,10 @@ const Tables = () => {
 
   const handleCreateOrder = (id) => {
     // send data to store
+    if (guestCount <= 0) {
+      enqueueSnackbar("Guest can't be 0", { variant: "error" });
+      return
+    }
     dispatch(updateTableSlice({ ...selectedAvailableTab }))
     dispatch(setCustomer({ name, phone, guests: guestCount }));
     closeModal()
@@ -170,32 +174,34 @@ const Tables = () => {
       </div>
 
       <Modal isOpen={isOpenOrderModal} onClose={closeModal} title="Create Order">
-        <div>
-          <label className='block text-[#ababab] mb-2 text-sm font-medium'>Customer Name</label>
-          <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-            <input value={name} onChange={(e) => setName(e.target.value)} type="text" name="" placeholder="Enter customer name" id=""
-              className="bg-transparent flex-1 text-white focus:outline-none" />
+        <form onSubmit={handleCreateOrder}>
+          <div>
+            <label className='block text-[#ababab] mb-2 text-sm font-medium'>Customer Name</label>
+            <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+              <input value={name} onChange={(e) => setName(e.target.value)} type="text" name="" required placeholder="Enter customer name" id=""
+                className="bg-transparent flex-1 text-white focus:outline-none" />
+            </div>
           </div>
-        </div>
-        <div>
-          <label className='block text-[#ababab] mb-2 mt-3 text-sm font-medium'>
-            Customer Phone <span className="text-xs text-gray-600">(Optional)</span></label>
-          <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} type="number" name="" placeholder="+62-0000000000000" id=""
-              className="bg-transparent flex-1 text-white focus:outline-none" />
+          <div>
+            <label className='block text-[#ababab] mb-2 mt-3 text-sm font-medium'>
+              Customer Phone <span className="text-xs text-gray-600">(Optional)</span></label>
+            <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} type="number" name="" required placeholder="+62-0000000000000" id=""
+                className="bg-transparent flex-1 text-white focus:outline-none" />
+            </div>
           </div>
-        </div>
-        <div>
-          <label className="block mb-2 mt-3 text-sm font-medium text-[#ababab]">Guest</label>
-          <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg">
-            <button onClick={decrement} className="text-yellow-500 text-2xl">&minus;</button>
-            <span className="text-white">{guestCount}</span>
-            <button onClick={increment} className="text-yellow-500 text-2xl">&#43;</button>
+          <div>
+            <label className="block mb-2 mt-3 text-sm font-medium text-[#ababab]">Guest</label>
+            <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg">
+              <button type="button" onClick={() => decrement()} className="text-yellow-500 text-2xl">&minus;</button>
+              <span className="text-white">{guestCount}</span>
+              <button type="button" onClick={() => increment()} className="text-yellow-500 text-2xl">&#43;</button>
+            </div>
           </div>
-        </div>
-        <button onClick={handleCreateOrder} className="w-full bg-[#F6B100] text-[#f5f5f5] rounded-lg py-3 mt-8 hover:bg-yellow-700">
-          Create Order
-        </button>
+          <button type="submit" className="w-full bg-[#F6B100] text-[#f5f5f5] rounded-lg py-3 mt-8 hover:bg-yellow-700">
+            Create Order
+          </button>
+        </form>
       </Modal>
 
       <Modal isOpen={isOpenTableModal} onClose={closeTableModal} title="Update Table">

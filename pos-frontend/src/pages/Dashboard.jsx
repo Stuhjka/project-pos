@@ -11,33 +11,33 @@ import TableManagement from '../components/dashboard/TableManagement'; // 👈 I
 const buttons = [
     { label: "Add Table", icon: <MdTableBar />, action: "table" },
     { label: "Add Category", icon: <MdCategory />, action: "category" },
-    { label: "Add Dishes", icon: <BiSolidDish />, action: "dishes"},
+    { label: "Add Dishes", icon: <BiSolidDish />, action: "dishes" },
 ];
 
 // 👇 Tab "Tables" udah gw masukin sini
-const tabs = ["Metrics", "Orders", "Menu", "Tables", "Payment"];
+const tabs = ["Metrics", "Orders", "Menu", "Tables"];
 
 const Dashboard = () => {
-    const [activeModal, setActiveModal] = useState(null); 
+    const [activeModal, setActiveModal] = useState(null);
     const [activeTab, setActiveTab] = useState("Metrics");
 
     const handleOpenModal = (action) => {
-        setActiveModal(action); 
+        setActiveModal(action);
     }
 
     const handleCloseModal = () => {
-        setActiveModal(null); 
+        setActiveModal(null);
     }
 
     return (
-        <div className='bg-[#1f1f1f] h-full min-h-0'>
-            <div className='container mx-auto flex items-center justify-between py-14 px-6 md:px-4'>
+        <div className='bg-[#1f1f1f] h-full min-h-0 flex flex-col'>
+            <div className='container mx-auto flex items-center justify-between py-8 px-6 md:px-4'>
                 <div className='flex items-center gap-3'>
-                    {buttons.map(({label, icon, action}) => {
-                        return(
-                            <button 
+                    {buttons.map(({ label, icon, action }) => {
+                        return (
+                            <button
                                 key={label}
-                                onClick={() => handleOpenModal(action)} 
+                                onClick={() => handleOpenModal(action)}
                                 className='bg-[#1a1a1a] hover:bg-[#262626] px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2'
                             >
                                 {label} {icon}
@@ -48,33 +48,35 @@ const Dashboard = () => {
 
                 <div className='flex items-center gap-3'>
                     {tabs.map((tab) => {
-                        return(
-                            <button 
+                        return (
+                            <button
                                 key={tab}
-                                className={`px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${activeTab ===  tab ? "bg-[#262626]" : "bg-[#1a1a1a] hover:bg-[#262626]"}`}
+                                className={`px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${activeTab === tab ? "bg-[#262626]" : "bg-[#1a1a1a] hover:bg-[#262626]"}`}
                                 onClick={() => setActiveTab(tab)}
                             >
-                                {tab} 
+                                {tab}
                             </button>
                         )
                     })}
                 </div>
             </div>
-            
+
             {/* 👇 RENDER COMPONENT SESUAI TAB */}
-            {activeTab === "Metrics" && <Metrics />}
-            {activeTab === "Orders" && <RecentOrders />}
-            {activeTab === "Menu" && <MenuManagement />}
-            {activeTab === "Tables" && <TableManagement />} {/* 👈 Fitur Hapus Tabel Muncul Disini */}
+            <div className='flex-1 min-h-0'>
+                {activeTab === "Metrics" && <Metrics />}
+                {activeTab === "Orders" && <RecentOrders />}
+                {activeTab === "Menu" && <MenuManagement />}
+                {activeTab === "Tables" && <TableManagement />} {/* 👈 Fitur Hapus Tabel Muncul Disini */}
+            </div>
 
             {/* Modal Logic */}
             {activeModal && (
-                <Modal 
-                    type={activeModal} 
-                    onClose={handleCloseModal} 
+                <Modal
+                    type={activeModal}
+                    onClose={handleCloseModal}
                 />
             )}
-            
+
         </div>
     )
 }

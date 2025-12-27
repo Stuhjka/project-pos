@@ -119,10 +119,10 @@ const MenuManagement = () => {
     );
 
     return (
-        <div className='container mx-auto py-6 px-6'>
+        <div className='container mx-auto py-6 px-6 h-full flex flex-col min-h-0'>
             
             {/* --- SECTION 1: MANAGE CATEGORIES --- */}
-            <div className='mb-10'>
+            <div className='mb-5'>
                 <div className='mb-6'>
                       <h2 className='font-bold text-[#f5f5f5] text-2xl'>Menu Management</h2>
                       <p className='text-sm text-[#ababab]'>Organize your categories and price lists.</p>
@@ -134,7 +134,7 @@ const MenuManagement = () => {
                             <button 
                                 onClick={() => setSelectedCategory(cat)}
                                 className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all border-2
-                                ${selectedCategory?._id === cat._id ? 'bg-yellow-500 border-white text-black font-bold shadow-lg scale-105' : 'bg-[#1f1f1f] border-[#333] text-gray-400'}`}
+                                ${selectedCategory?._id === cat._id ? 'bg-yellow-500 border-white text-black font-bold shadow-lg' : 'bg-[#1f1f1f] border-[#333] text-gray-400'}`}
                             >
                                 <span className="text-2xl">{cat.icon}</span>
                                 <span className="text-sm whitespace-nowrap">{cat.title}</span>
@@ -152,7 +152,7 @@ const MenuManagement = () => {
             </div>
 
             {/* --- SECTION 2: FILTERED DISHES --- */}
-            <div className="mt-4">
+            <div className="mt-4 flex-1 min-h-0 flex flex-col">
                 <div className='mb-6 flex justify-between items-end'>
                     <div>
                         <h2 className='font-bold text-[#f5f5f5] text-xl'>Items in {selectedCategory?.title}</h2>
@@ -160,7 +160,7 @@ const MenuManagement = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 overflow-y-auto flex-1 flex-col min-h-0 scrollbar-hide">
                     {filteredDishes?.length > 0 ? (
                         filteredDishes.map((dish) => (
                             <div key={dish._id} className="bg-[#1f1f1f] p-5 rounded-2xl flex gap-4 border border-[#333] relative group hover:border-yellow-500 transition-all shadow-sm">

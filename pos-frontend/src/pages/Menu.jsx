@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BottomNav from '../components/shared/BottomNav';
 import BackButton from '../components/shared/BackButton';
 // FaUserCircle gw hapus karena gak dipake
 import { MdRestaurantMenu } from 'react-icons/md';
 // 👇 INI PENTING: Import icon delete-nya
-import { RiDeleteBin2Fill } from 'react-icons/ri'; 
+import { RiDeleteBin2Fill } from 'react-icons/ri';
 import MenuContainer from '../components/menu/MenuContainer';
 import { FaNotesMedical } from 'react-icons/fa';
 
@@ -12,10 +12,19 @@ import CustomerInfo from '../components/menu/CustomerInfo';
 import CartInfo from '../components/menu/CartInfo';
 import Bill from '../components/menu/Bill';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 
 const Menu = () => {
 
     const customerData = useSelector(state => state.customer);
+
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (!customerData?.customerName) {
+            navigate('/tables', { replace: true });
+        }
+    }, [customerData?.customerName, navigate]);
 
     return (
         <section className="bg-[#1f1f1f] overflow-hidden h-full min-h-0 flex gap-3">
@@ -43,7 +52,7 @@ const Menu = () => {
                 <MenuContainer />
 
             </div>
-            
+
             {/*right div*/}
             <div className="flex-[1] bg-[#1a1a1a] my-4 mr-3 rounded-lg pt-2 flex flex-col min-h-0">
                 {/* {Customer info} */}

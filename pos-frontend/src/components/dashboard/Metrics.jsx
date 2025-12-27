@@ -29,7 +29,7 @@ const Metrics = () => {
   };
 
   return (
-    <div className='container mx-auto py-2 px-6 md:px-4'>
+    <div className='container mx-auto py-2 px-6 md:px-4 h-full overflow-y-auto'>
       
       {/* HEADER ATAS */}
       <div className='flex justify-between items-end mb-6'>
@@ -87,12 +87,12 @@ const Metrics = () => {
             >
               <div className="flex justify-between items-center">
                 <p className="font-medium text-xs text-[#f5f5f5]">{metric.title}</p>
-                <div className="flex items-center gap-1">
+                {/* <div className="flex items-center gap-1">
                   <svg className="w-3 h-3" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4" fill="none" style={{ color: metric.isIncrease ? "#f5f5f5" : "red" }}>
                     <path d={metric.isIncrease ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
                   </svg>
                   <p className="font-medium text-xs" style={{ color: metric.isIncrease ? "#f5f5f5" : "red" }}>{metric.percentage}</p>
-                </div>
+                </div> */}
               </div>
               <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">
                 {metric.value === "totalOrders" ? dashboardData?.[metric.value] || 0 : formatRupiah(dashboardData?.[metric.value] || 0)}
@@ -122,12 +122,12 @@ const Metrics = () => {
               <div key={index} className="shadow-sm rounded-lg p-4" style={{ backgroundColor: item.color }}>
                 <div className="flex justify-between items-center">
                   <p className="font-medium text-xs text-[#f5f5f5]">{item.title}</p>
-                  <div className="flex items-center gap-1">
+                  {/* <div className="flex items-center gap-1">
                     <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4" fill="none">
                       <path d="M5 15l7-7 7 7" />
                     </svg>
                     <p className="font-medium text-xs text-[#f5f5f5]">{item.percentage}</p>
-                  </div>
+                  </div> */}
                 </div>
                 <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">{realValue}</p> 
               </div>

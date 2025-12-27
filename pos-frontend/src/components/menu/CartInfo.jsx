@@ -57,7 +57,7 @@ const CartInfo = () => {
                                             className='text-[#ababab] cursor-pointer hover:text-red-500' 
                                             size={20} 
                                         />
-                                        <FaNotesMedical className='text-[#ababab] cursor-pointer' size={20} />
+                                        {/* <FaNotesMedical className='text-[#ababab] cursor-pointer' size={20} /> */}
                                     </div>
                                     <p className='text-[#f5f5f5] text-md font-bold'>
                                         Rp. {item.price.toLocaleString('id-ID')}

@@ -20,7 +20,8 @@ export const logout = () => api.post("/api/user/logout");
 export const addTable = (data) => api.post("/api/table/", data);
 export const getTables = () => api.get("/api/table");
 // Memperbaiki parameter destructuring agar ID masuk ke URL dengan benar
-export const updateTable = ({ id, payload }) => api.put(`/api/table/${id}`, payload);
+export const updateTable = ( id, payload ) => api.put(`/api/table/${id}`, payload);
+// export const updateTable = ({ id, payload }) => api.put(`/api/table/${id}`, payload);
 export const deleteTable = (id) => api.delete(`/api/table/${id}`);
 
 // 3. ORDERS
