@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { IoMdHome } from "react-icons/io";
 import { MdOutlineReorder } from "react-icons/md";
 import { MdTableBar } from "react-icons/md"; 
-import { CiCircleMore } from "react-icons/ci"; 
 import { BiSolidDish } from "react-icons/bi";
 import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Modal";
@@ -68,10 +67,6 @@ const BottomNav = () => {
             >
                 <MdTableBar className="inline mr-2" size={20} /> 
                 <p>Tables</p>
-            </button>
-            <button className='flex items-center justify-center text-[#ababab] w-[200px]'>
-                <CiCircleMore className="inline mr-2" size={20} /> 
-                <p>More</p>
             </button>
             {/* <button
                 disabled={isActive("/tables") || isActive("/menu")} 

@@ -20,13 +20,10 @@ const Bill = () => {
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {
-      enqueueSnackbar("Please select a payment method!", {
-        variant: "warning",
-      });
-
+      enqueueSnackbar("Please select a payment method!", { variant: "warning" });
       return;
     }
-    // Place the order
+    
     const orderData = {
       customerDetails: {
         name: customerData.customerName,
@@ -50,23 +47,24 @@ const Bill = () => {
     mutationFn: (reqData) => addOrder(reqData),
     onSuccess: (resData) => {
       const { data } = resData.data;
-
       setOrderInfo(data);
 
-      // Update Table
+      // 🔍 FIX 1: Ambil ID meja dengan aman (handle populated object)
+      const cleanTableId = (data.table && typeof data.table === 'object') 
+          ? data.table._id 
+          : data.table;
+
       const tableData = {
         status: "Booked",
         orderId: data._id,
-        tableId: data.table,
+        tableId: cleanTableId, // Ini ID string bersih
       };
 
       setTimeout(() => {
         tableUpdateMutation.mutate(tableData);
       }, 1500);
 
-      enqueueSnackbar("Order Placed!", {
-        variant: "success",
-      });
+      enqueueSnackbar("Order Placed!", { variant: "success" });
       setShowInvoice(true);
     },
     onError: (error) => {
@@ -75,7 +73,9 @@ const Bill = () => {
   });
 
   const tableUpdateMutation = useMutation({
-    mutationFn: (reqData) => updateTable(reqData),
+    // 🔍 FIX 2: Samain logika kayak di Tables.jsx (Kirim 2 argumen)
+    mutationFn: (reqData) => updateTable(reqData.tableId, reqData),
+    
     onSuccess: (resData) => {
       dispatch(removeCustomer());
       dispatch(removeAllItems());
@@ -83,6 +83,7 @@ const Bill = () => {
     },
     onError: (error) => {
       console.log(error);
+      enqueueSnackbar("Gagal update status meja", { variant: "error" });
     },
   });
 
@@ -118,9 +119,7 @@ const Bill = () => {
       </div>
 
       <div className='flex items-center gap-3 px-5 mt-4'>
-        <button
-          className='bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg'
-        >
+        <button className='bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg'>
           Print Receipt
         </button>
         <button
