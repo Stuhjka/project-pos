@@ -19,9 +19,22 @@ export const logout = () => api.post("/api/user/logout");
 // 2. TABLES
 export const addTable = (data) => api.post("/api/table/", data);
 export const getTables = () => api.get("/api/table");
-// Memperbaiki parameter destructuring agar ID masuk ke URL dengan benar
-export const updateTable = ( id, payload ) => api.put(`/api/table/${id}`, payload);
-// export const updateTable = ({ id, payload }) => api.put(`/api/table/${id}`, payload);
+
+/**
+ * Update Table (Hybrid Function)
+ * Bisa menangani dua cara panggil:
+ * 1. updateTable(id, payload) -> Digunakan saat Place Order
+ * 2. updateTable({ id, payload }) -> Digunakan di Dashboard Admin
+ */
+export const updateTable = (arg1, arg2) => {
+    // Cek jika argumen pertama adalah objek dan punya properti 'id' (Kasus Dashboard Admin)
+    if (typeof arg1 === 'object' && arg1.id) {
+        return api.put(`/api/table/${arg1.id}`, arg1.payload);
+    }
+    // Jika argumen pertama adalah ID string (Kasus Place Order)
+    return api.put(`/api/table/${arg1}`, arg2);
+};
+
 export const deleteTable = (id) => api.delete(`/api/table/${id}`);
 
 // 3. ORDERS

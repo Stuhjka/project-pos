@@ -22,7 +22,7 @@ const PopularDishes = () => {
                 {/* HEADER */}
                 <div className='flex justify-between items-center px-6 py-4 border-b border-[#2a2a2a]'>
                     <h1 className='text-[#f5f5f5] text-lg font-bold tracking-wide'>Popular Dishes</h1>
-                    <button className='text-[#f6b100] text-sm font-semibold hover:underline'>View All</button> 
+                    {/* <button className='text-[#f6b100] text-sm font-semibold hover:underline'>View All</button>  */}
                 </div>
 
                 {/* LIST CONTENT */}

@@ -8,9 +8,12 @@ import RecentOrders from '../components/Home/RecentOrders'
 import PopularDishes from '../components/Home/PopularDishes'
 import { getDashboardCashier } from '../https'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 
 
 const Home = () => {
+const navigate = useNavigate();
+
   const { data: resData, isLoading } = useQuery({
     queryKey: ["dashboard-cashier"],
     queryFn: getDashboardCashier,
@@ -27,8 +30,13 @@ const Home = () => {
         <div className="flex items-center w-full gap-3 px-8 mt-8">
           <Minicard title="Total Earnings" icon={<BsCashCoin />} number={dashboardData?.totalEarnings ? dashboardData?.totalEarnings : 0}
             isLoading={isLoading} />
-          <Minicard title="Total Order" icon={<GrInProgress />} number={dashboardData?.totalOrders ? dashboardData?.totalOrders : 0}
-            isLoading={isLoading} />
+          <Minicard 
+            title="Total Order" 
+            icon={<GrInProgress />} 
+            number={dashboardData?.totalOrders || 0}
+            isLoading={isLoading} 
+            onClick={() => navigate("/orders")}
+          />
         </div>
         <div className='flex-1 min-h-0'>
           <RecentOrders />

@@ -127,12 +127,12 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
 
         {/* Buttons */}
         <div className="flex justify-between mt-4">
-          <button
+          {/* <button
             onClick={handlePrint}
             className="text-blue-500 hover:underline text-xs px-4 py-2 rounded-lg"
           >
             Print Receipt
-          </button>
+          </button> */}
           <button
             onClick={() => setShowInvoice(false)}
             className="text-red-500 hover:underline text-xs px-4 py-2 rounded-lg"

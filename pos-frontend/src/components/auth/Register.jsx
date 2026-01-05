@@ -119,7 +119,7 @@ const Register = ({setIsRegister}) => {
             <label className='block text-[#ababab] mb-2 mt-3 text-sm font-medium'>Choose Your role</label>
 
             <div className="flex items-center gap-3 mt-4">
-                {["Waiter", "Cashier", "Admin"].map((role) => {
+                {["Cashier", "Admin"].map((role) => {
                    return (
                      <button
                         key={role}
