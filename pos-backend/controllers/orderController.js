@@ -5,6 +5,21 @@ const Category = require("../models/categoryModel");
 const createHttpError = require("http-errors");
 const mongoose = require("mongoose");
 
+// Helper untuk dapetin batas waktu WIB (GMT+7)
+const getWIBBoundaries = (offsetDays = 0) => {
+    const now = new Date();
+    // Geser ke WIB
+    const wibNow = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+    wibNow.setDate(wibNow.getDate() + offsetDays);
+    wibNow.setUTCHours(0, 0, 0, 0); // Titik 00:00 di WIB
+    
+    // Balikin ke UTC untuk query database
+    const startUTC = new Date(wibNow.getTime() - (7 * 60 * 60 * 1000));
+    const endUTC = new Date(startUTC.getTime() + (24 * 60 * 60 * 1000) - 1);
+    
+    return { startUTC, endUTC };
+};
+
 const addOrder = async (req, res, next) => {
     try {
         const order = new Order(req.body);
@@ -35,55 +50,33 @@ const getOrderById = async (req, res, next) => {
     }
 }
 
-// 🛒 MODIFIKASI FINAL: Mendukung Filter Range (Today, Yesterday, Last 7 Days, dll)
 const getOrders = async (req, res, next) => {
     try {
         const { filter } = req.query;
         let query = {};
 
         if (filter) {
-            const now = new Date();
-            let start = new Date(now);
-            let end = new Date(now);
-            
-            // Set Default End Time ke ujung hari ini (23:59 WIB)
-            end.setUTCHours(23 - 7, 59, 59, 999); 
+            let { startUTC, endUTC } = getWIBBoundaries(0);
 
             switch (filter) {
                 case "today":
-                    // Mulai jam 00:00 hari ini
-                    start.setUTCHours(0 - 7, 0, 0, 0);
+                    query.createdAt = { $gte: startUTC, $lte: endUTC };
                     break;
                 case "yesterday":
-                    // Mundur 1 hari
-                    start.setDate(start.getDate() - 1);
-                    start.setUTCHours(0 - 7, 0, 0, 0);
-                    // End date juga mundur 1 hari
-                    end.setDate(end.getDate() - 1);
-                    end.setUTCHours(23 - 7, 59, 59, 999);
+                    const yesterday = getWIBBoundaries(-1);
+                    query.createdAt = { $gte: yesterday.startUTC, $lte: yesterday.endUTC };
                     break;
                 case "last7days":
-                    // Mundur 6 hari ke belakang
-                    start.setDate(start.getDate() - 6);
-                    start.setUTCHours(0 - 7, 0, 0, 0);
+                    const last7 = getWIBBoundaries(-6);
+                    query.createdAt = { $gte: last7.startUTC, $lte: endUTC };
                     break;
                 case "last30days":
-                    // Mundur 29 hari ke belakang
-                    start.setDate(start.getDate() - 29);
-                    start.setUTCHours(0 - 7, 0, 0, 0);
+                    const last30 = getWIBBoundaries(-29);
+                    query.createdAt = { $gte: last30.startUTC, $lte: endUTC };
                     break;
-                default:
-                    // Kalau filter ga dikenal, biarin query kosong (ambil semua)
-                    break;
-            }
-
-            // Terapkan query hanya jika filter valid
-            if (["today", "yesterday", "last7days", "last30days"].includes(filter)) {
-                query.createdAt = { $gte: start, $lte: end };
             }
         }
 
-        // Kalau filter kosong, dia bakal ambil SEMUA data (default behavior)
         const orders = await Order.find(query).populate('table').sort({ createdAt: -1 });
         res.status(200).json({ success: true, data: orders });
     } catch (error) {
@@ -113,7 +106,6 @@ const updateOrder = async (req, res, next) => {
         }
 
         res.status(200).json({ success: true, message: "Order updated successfully", data: order });
-
     } catch (error) {
         next(error);
     }
@@ -122,7 +114,6 @@ const updateOrder = async (req, res, next) => {
 const getMostOrderedItems = async (req, res, next) => {
     try {
         const limit = Number(req.query.limit) || 10;
-
         const result = await Order.aggregate([
             { $unwind: "$items" },
             {
@@ -135,7 +126,6 @@ const getMostOrderedItems = async (req, res, next) => {
                 },
             },
             {
-                // Join ke dishes untuk gambar
                 $lookup: {
                     from: "dishes",         
                     localField: "_id",      
@@ -157,7 +147,6 @@ const getMostOrderedItems = async (req, res, next) => {
             { $sort: { totalQty: -1 } },
             { $limit: limit },
         ]);
-
         res.status(200).json({ success: true, data: result });
     } catch (error) {
         next(error);
@@ -166,16 +155,12 @@ const getMostOrderedItems = async (req, res, next) => {
 
 const getEarningAndTotalOrder = async (req, res, next) => {
     try {
-        const start = new Date();
-        start.setUTCHours(0 - 7, 0, 0, 0);
-
-        const end = new Date();
-        end.setUTCHours(23 - 7, 59, 59, 999);
+        const { startUTC, endUTC } = getWIBBoundaries(0);
 
         const resultEarnings = await Order.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: start, $lte: end },
+                    createdAt: { $gte: startUTC, $lte: endUTC },
                     orderStatus: { $ne: "Cancelled" }
                 }
             },
@@ -200,30 +185,23 @@ const getEarningAndTotalOrder = async (req, res, next) => {
 const getOwnerDashboardStats = async (req, res, next) => {
   try {
     const { range = "today" } = req.query;
-
-    const now = new Date();
-    let end = new Date(now);
-    end.setUTCHours(23 - 7, 59, 59, 999);
-
-    let start = new Date(end);
+    const today = getWIBBoundaries(0);
+    let start = today.startUTC;
+    let end = today.endUTC;
 
     switch (range) {
       case "today":
-        start.setUTCHours(0 - 7, 0, 0, 0);
         break;
       case "yesterday":
-        start.setDate(start.getDate() - 1);
-        start.setUTCHours(0 - 7, 0, 0, 0);
-        end.setDate(end.getDate() - 1);
-        end.setUTCHours(23 - 7, 59, 59, 999);
+        const yesterday = getWIBBoundaries(-1);
+        start = yesterday.startUTC;
+        end = yesterday.endUTC;
         break;
       case "last7days":
-        start.setDate(start.getDate() - 6);
-        start.setUTCHours(0 - 7, 0, 0, 0);
+        start = getWIBBoundaries(-6).startUTC;
         break;
       case "last30days":
-        start.setDate(start.getDate() - 29);
-        start.setUTCHours(0 - 7, 0, 0, 0);
+        start = getWIBBoundaries(-29).startUTC;
         break;
       default:
         return res.status(400).json({ message: "Invalid range" });
@@ -258,7 +236,6 @@ const getOwnerDashboardStats = async (req, res, next) => {
     const totalCategory = await Category.countDocuments();
     const totalTable = await Table.countDocuments();
     const totalDish = await Dish.countDocuments();
-
     const data = result[0] || { revenue: 0, totalOrders: 0, cashTotal: 0, onlineTotal: 0 };
 
     return res.status(200).json({
@@ -270,7 +247,6 @@ const getOwnerDashboardStats = async (req, res, next) => {
       totalTable,
       totalDish
     });
-
   } catch (error) {
     next(error)
   }
