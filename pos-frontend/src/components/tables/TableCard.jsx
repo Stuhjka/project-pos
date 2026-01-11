@@ -1,37 +1,63 @@
 import React from "react";
-// import { useNavigate } from "react-router-dom";
 import { getAvatarName, getBgColor } from "../../utils"
-// import { useDispatch } from "react-redux";
-// import { updateTable } from "../../redux/slices/customerSlice";
 import { FaLongArrowAltRight } from "react-icons/fa";
 
 const TableCard = ({id, name, status, initials, seats, openModal, openTableModal}) => {
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
+
   const handleClick = () => {
     if(status === "Booked") {
       openTableModal(id)
       return;
     };
-
     openModal(id, name)
-
-    // dispatch(updateTable({tableId: id, tableNo: name}))
-    // navigate(`/menu`);
   };
 
   return (
-    <div onClick={() => handleClick()} key={id} className="w-full h-fit hover:bg-[#2c2c2c] bg-[#262626] p-4 rounded-lg cursor-pointer">
+    <div 
+      onClick={() => handleClick()} 
+      key={id} 
+      className="w-full h-fit hover:bg-[#2c2c2c] bg-[#262626] p-4 rounded-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-white/5"
+    >
       <div className="flex items-center justify-between px-1">
-        <h1 className="text-[#f5f5f5] text-xl font-semibold">Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" /> {name}</h1>
-        <p className={`${status === "Booked" ? "text-green-600 bg-[#2e4a40]" : "bg-[#664a04] text-white"} px-2 py-1 rounded-lg`}>
+        {/* HEADER: Table [No] -> [Nama Putih] */}
+        <h1 className="text-[#f5f5f5] text-lg font-bold flex items-center">
+          Table {name} 
+          {status === "Booked" && initials && (
+            <>
+              <FaLongArrowAltRight className="text-[#ababab] mx-2" /> 
+              <span className="text-[#f5f5f5] truncate max-w-[100px] text-sm font-semibold">
+                {initials}
+              </span>
+            </>
+          )}
+        </h1>
+
+        {/* STATUS BADGE */}
+        <p className={`${
+          status === "Booked" 
+          ? "text-red-400 bg-red-900/30 border border-red-800" 
+          : "bg-green-900/30 text-green-400 border border-green-800"
+        } px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider`}>
           {status}
         </p>
       </div>
-      <div className="flex items-center justify-center mt-5 mb-8">
-        <h1 className={`text-white rounded-full p-5 text-xl`} style={{backgroundColor : initials ? getBgColor() : "#1f1f1f"}} >{getAvatarName(initials) || "N/A"}</h1>
+
+      {/* AVATAR SECTION */}
+      <div className="flex items-center justify-center mt-6 mb-8">
+        <div 
+          className="text-white rounded-full h-16 w-16 flex items-center justify-center text-xl font-black shadow-lg" 
+          style={{backgroundColor : initials ? getBgColor() : "#1f1f1f"}}
+        >
+          {getAvatarName(initials) || "N/A"}
+        </div>
       </div>
-      <p className="text-[#ababab] text-xs">Seats: <span className="text-[#f5f5f5]">{seats}</span></p>
+
+      {/* FOOTER */}
+      <div className="flex justify-between items-center px-1">
+        <p className="text-[#ababab] text-xs uppercase tracking-widest font-semibold">
+          Seats: <span className="text-[#f5f5f5]">{seats}</span>
+        </p>
+      </div>
     </div>
   );
 };

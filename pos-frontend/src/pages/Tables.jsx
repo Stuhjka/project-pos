@@ -164,6 +164,7 @@ const Tables = () => {
                 // Tutorial pake 'tableNo', tapi DB lo pake 'table'. Gw kasih fallback biar aman.
                 name={table.table || table.tableNo}
                 status={table.status}
+                customerName={table?.currentOrder?.customerDetails?.name}
                 initials={table?.currentOrder?.customerDetails.name}
                 seats={table.seats}
                 openModal={(id) => openModal(id)}
