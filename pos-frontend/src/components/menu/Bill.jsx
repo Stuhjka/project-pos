@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react' // HAPUS useRef
 import { useDispatch, useSelector } from 'react-redux'
 import { getTotalPrice, removeAllItems } from '../../redux/slices/cartSlice'
 import { enqueueSnackbar } from 'notistack';
@@ -7,6 +7,7 @@ import { addOrder, updateTable } from '../../https';
 import Invoice from './Invoice';
 import { removeCustomer } from '../../redux/slices/customerSlice';
 import { useNavigate } from 'react-router';
+// HAPUS import useReactToPrint karena Invoice lu udah mandiri
 
 const Bill = () => {
   const customerData = useSelector((state) => state.customer);
@@ -17,6 +18,10 @@ const Bill = () => {
   const [orderInfo, setOrderInfo] = React.useState();
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  // --- BAGIAN PRINT RECEIPT LAMA DIHAPUS ---
+  // Kita tidak butuh componentRef dan handlePrint di sini lagi
+  // -----------------------------------------
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {
@@ -49,7 +54,6 @@ const Bill = () => {
       const { data } = resData.data;
       setOrderInfo(data);
 
-      // 🔍 FIX 1: Ambil ID meja dengan aman (handle populated object)
       const cleanTableId = (data.table && typeof data.table === 'object') 
           ? data.table._id 
           : data.table;
@@ -57,7 +61,7 @@ const Bill = () => {
       const tableData = {
         status: "Booked",
         orderId: data._id,
-        tableId: cleanTableId, // Ini ID string bersih
+        tableId: cleanTableId, 
       };
 
       setTimeout(() => {
@@ -65,6 +69,7 @@ const Bill = () => {
       }, 1500);
 
       enqueueSnackbar("Order Placed!", { variant: "success" });
+      // Otomatis munculin modal invoice pas sukses
       setShowInvoice(true);
     },
     onError: (error) => {
@@ -73,7 +78,6 @@ const Bill = () => {
   });
 
   const tableUpdateMutation = useMutation({
-    // 🔍 FIX 2: Samain logika kayak di Tables.jsx (Kirim 2 argumen)
     mutationFn: (reqData) => updateTable(reqData.tableId, reqData),
     
     onSuccess: (resData) => {
@@ -119,9 +123,15 @@ const Bill = () => {
       </div>
 
       <div className='flex items-center gap-3 px-5 mt-4'>
-        {/* <button className='bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg'>
-          Print Receipt
-        </button> */}
+        {/* LOGIKA BARU: Tombol ini cuma buat MUNCULIN MODAL */}
+        <button 
+          className={`bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg ${!orderInfo ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => setShowInvoice(true)} 
+          disabled={!orderInfo}
+        >
+          View Receipt
+        </button>
+        {/* ------------------------------------------ */}
         <button
           className='bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg'
           onClick={async () => await handlePlaceOrder()}
@@ -129,6 +139,9 @@ const Bill = () => {
           Place Order
         </button>
       </div>
+
+      {/* COMPONENT TERSEMBUNYI HAPUS AJA */}
+      {/* Karena Invoice sudah pake window.open, dia gak butuh hidden div lagi */}
 
       {showInvoice && (
         <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
