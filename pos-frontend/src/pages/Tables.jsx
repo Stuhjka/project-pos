@@ -5,17 +5,21 @@ import TableCard from "../components/tables/TableCard";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getTables, updateTable } from "../https";
 import { updateTable as updateTableSlice } from "../redux/slices/customerSlice";
-import { enqueueSnackbar } from "notistack"; // Pastikan import ini ada
+import { enqueueSnackbar } from "notistack"; 
 import Modal from "../components/shared/Modal";
 import { useDispatch } from "react-redux";
 import { setCustomer } from "../redux/slices/customerSlice";
 import { useNavigate } from "react-router";
+// 1. IMPORT PENTING BUAT HAPUS KERANJANG
+import { removeAllItems } from "../redux/slices/cartSlice"; 
 
 const Tables = () => {
   const [status, setStatus] = useState("all");
   const [isOpenOrderModal, setIsModalOrderOpen] = useState(false);
   const [isOpenTableModal, setIsModalTableOpen] = useState(false);
-  const [selectedBookedTab, setSelectedBookedTab] = useState('')
+  
+  const [selectedBookedTableData, setSelectedBookedTableData] = useState(null);
+
   const [selectedAvailableTab, setSelectedAvailableTab] = useState({
     tableId: '',
     tableNo: ''
@@ -54,12 +58,9 @@ const Tables = () => {
   });
 
   if (isError) {
-    // enqueueSnackbar("Something went wrong!", { variant: "error" });
     console.log("Error fetching tables");
   }
 
-  // 👇 1. LOGIC SORTING (Biar urut 1, 2, 3...)
-  // Tutorial aslinya gak punya ini, jadi gw tambahin biar rapi.
   const sortedTables = resData?.data?.data
     ? [...resData.data.data].sort((a, b) => a.table - b.table)
     : [];
@@ -79,12 +80,13 @@ const Tables = () => {
     setIsModalOrderOpen(false)
   };
 
-  const openTableModal = (id) => {
-    setSelectedBookedTab(id)
-    setIsModalTableOpen(true)
+  const openTableModal = (tableData) => {
+    setSelectedBookedTableData(tableData); 
+    setIsModalTableOpen(true);
   };
+
   const closeTableModal = () => {
-    setSelectedBookedTab('')
+    setSelectedBookedTableData(null);
     setIsModalTableOpen(false)
   };
 
@@ -97,23 +99,54 @@ const Tables = () => {
     setGuestCount((prev) => prev - 1);
   }
 
+  // --- LOGIC 1: ORDER BARU (MEJA KOSONG) ---
   const handleCreateOrder = (id) => {
-    // send data to store
     if (guestCount <= 0) {
       enqueueSnackbar("Guest can't be 0", { variant: "error" });
       return
     }
+    
+    // ✅ AUTO CLEAR: Karena Meja Baru, keranjang wajib bersih!
+    dispatch(removeAllItems());
+
     dispatch(updateTableSlice({ ...selectedAvailableTab }))
     dispatch(setCustomer({ name, phone, guests: guestCount }));
     closeModal()
     navigate("/menu")
   }
 
+  // --- LOGIC 2: TAMBAH PESANAN (MEJA ISI) ---
+  const handleAddToOrder = () => {
+    if (!selectedBookedTableData) return;
+
+    const existingCustomer = selectedBookedTableData.currentOrder?.customerDetails;
+
+    if (existingCustomer) {
+      dispatch(setCustomer({ 
+        name: existingCustomer.name, 
+        phone: existingCustomer.phone, 
+        guests: existingCustomer.guest 
+      }));
+    }
+
+    dispatch(updateTableSlice({ 
+      tableId: selectedBookedTableData._id,
+      tableNo: selectedBookedTableData.table
+    }));
+
+    // ❌ NO CLEAR: Kita tidak hapus keranjang di sini. 
+    // Jadi kalau ada barang "nyangkut" atau mau nambah, dia tetep ada.
+    
+    closeTableModal();
+    navigate("/menu");
+    enqueueSnackbar("Adding items for " + existingCustomer?.name, { variant: "info" });
+  };
+
   const handleChangetableStatus = async () => {
     const tableData = {
       status: "available",
       orderId: null,
-      tableId: selectedBookedTab,
+      tableId: selectedBookedTableData?._id, 
     };
 
     await tableUpdateMutation.mutate(tableData)
@@ -121,7 +154,6 @@ const Tables = () => {
 
   return (
     <section className="bg-[#1f1f1f] h-full min-h-0 overflow-hidden flex flex-col">
-      {/* HEADER (Sama persis kayak Tutorial) */}
       <div className="flex items-center justify-between px-10 py-4">
         <div className="flex items-center gap-4">
           <BackButton />
@@ -147,28 +179,24 @@ const Tables = () => {
         </div>
       </div>
 
-      {/* 👇 2. GRID LAYOUT (Style Tutorial) + LOGIC FILTER (Fitur Kita) */}
       <div className="grid grid-cols-4 gap-3 px-16 py-4 overflow-y-scroll scrollbar-hide flex-1 min-h-0">
         {sortedTables
           .filter((table) => {
-            // Logic Filter: Kalau tab All, lolos semua. Kalau Booked, cuma yg Booked.
             if (status === "all") return true;
             return table.status === "Booked";
           })
           .map((table) => {
             return (
               <TableCard
-                key={table._id} // Tambahin Key biar React gak ngomel
+                key={table._id}
                 id={table._id}
-                // 👇 3. NAMA FIELD DISESUAIKAN
-                // Tutorial pake 'tableNo', tapi DB lo pake 'table'. Gw kasih fallback biar aman.
                 name={table.table || table.tableNo}
                 status={table.status}
                 customerName={table?.currentOrder?.customerDetails?.name}
-                initials={table?.currentOrder?.customerDetails.name}
+                initials={table?.currentOrder?.customerDetails?.name}
                 seats={table.seats}
-                openModal={(id) => openModal(id)}
-                openTableModal={(id, tableNo) => openTableModal(id, tableNo)}
+                openModal={(id) => openModal(id, table.table)}
+                openTableModal={() => openTableModal(table)}
               />
             );
           })}
@@ -205,15 +233,23 @@ const Tables = () => {
         </form>
       </Modal>
 
-      <Modal isOpen={isOpenTableModal} onClose={closeTableModal} title="Update Table">
-        <label className="block mb-2 mt-3 text-md font-medium text-[#ababab]">Change Table to Available?</label>
-        <div className="flex gap-3">
-          <button onClick={handleChangetableStatus} className="w-full bg-[#2e4a40] text-[#f5f5f5] rounded-lg py-3 mt-8">
-            Yes
-          </button>
-          <button onClick={closeTableModal} className="w-full bg-[#7a2e2e] text-[#f5f5f5] rounded-lg py-3 mt-8">
-            No
-          </button>
+      <Modal isOpen={isOpenTableModal} onClose={closeTableModal} title={`Table ${selectedBookedTableData?.table || ''}`}>
+        <div className="flex flex-col gap-3 mt-4">
+            <button onClick={handleAddToOrder} className="w-full bg-[#025cca] text-[#f5f5f5] rounded-lg py-3 font-semibold hover:bg-blue-700 transition-all">
+                Add Items to Order
+            </button>
+
+            <div className="border-t border-gray-600 my-2"></div>
+
+            <p className="text-sm text-[#ababab] text-center mb-1">Finish & Clear Table?</p>
+            <div className="flex gap-3">
+                <button onClick={handleChangetableStatus} className="w-full bg-[#2e4a40] text-[#f5f5f5] rounded-lg py-3 hover:bg-green-800">
+                    Yes, Clear
+                </button>
+                <button onClick={closeTableModal} className="w-full bg-[#7a2e2e] text-[#f5f5f5] rounded-lg py-3 hover:bg-red-800">
+                    Cancel
+                </button>
+            </div>
         </div>
       </Modal>
     </section>
