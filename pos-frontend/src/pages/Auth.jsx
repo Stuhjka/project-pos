@@ -19,9 +19,9 @@ const Auth = () => {
 
         {/* Quote at bottom */} 
             <blockquote className='absolute bottom-10 px-8 mb-10 text-2xl italic text-white'>
-                Pokoknya saya ganteng
+                Pelayanan terbaik dimulai dari ketulusan hati dan efisiensi sistem.
                 <br />
-                <span className='block mt-4 text-yellow-400'>-hehehehe</span>
+                <span className='block mt-4 text-yellow-400'>-AkuLapar Team</span>
             </blockquote>
       </div>
 

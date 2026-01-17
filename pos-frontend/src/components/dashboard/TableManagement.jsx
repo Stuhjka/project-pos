@@ -78,48 +78,59 @@ const TableManagement = () => {
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-                {tables?.data?.data?.map((table) => (
-                    <div key={table._id} className="bg-[#1f1f1f] p-5 rounded-2xl border border-[#333] relative group hover:border-yellow-500 transition-all flex flex-col items-center shadow-lg">
-                        
-                        {/* --- TOMBOL ACTION (DELETE & EDIT) --- */}
-                        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                            <button 
-                                onClick={() => handleEditClick(table)}
-                                className="bg-[#2a2a2a] p-2 rounded-xl text-blue-400 hover:text-white hover:bg-blue-500 transition-all shadow-md"
-                                title="Edit Seats"
-                            >
-                                <FaPen size={12} />
-                            </button>
-                            <button 
-                                onClick={() => handleDelete(table._id)}
-                                className="bg-[#2a2a2a] p-2 rounded-xl text-red-500 hover:text-white hover:bg-red-500 transition-all shadow-md"
-                                title="Delete Table"
-                            >
-                                <FaTrash size={12} />
-                            </button>
-                        </div>
-
-                        <div className="bg-[#2a2a2a] p-4 rounded-2xl text-yellow-500 mb-3 border border-[#333]">
-                            <MdTableRestaurant size={32} />
-                        </div>
-
-                        <div className="text-center w-full">
-                            <h3 className="text-white font-black text-lg">T-{table.tableNo || table.table}</h3>
-                            <div className="flex items-center justify-center gap-2 text-gray-400 text-xs mt-1">
-                                <FaChair size={10} className="text-yellow-500/50" />
-                                <span className="font-medium">{table.seats} Seats</span>
-                            </div>
+                {tables?.data?.data?.map((table) => {
+                    // LOGIKA WARNA: Merah jika Occupied/Booked, selain itu Hijau
+                    const isUnavailable = table.status === 'Occupied' || table.status === 'Booked';
+                    
+                    return (
+                        <div key={table._id} className="bg-[#1f1f1f] p-5 rounded-2xl border border-[#333] relative group hover:border-yellow-500 transition-all flex flex-col items-center shadow-lg">
                             
-                            <div className={`mt-3 py-1 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider inline-block border ${
-                                table.status === 'Occupied' 
+                            {/* --- TOMBOL ACTION (DELETE & EDIT) --- */}
+                            <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                <button 
+                                    onClick={() => handleEditClick(table)}
+                                    className="bg-[#2a2a2a] p-2 rounded-xl text-blue-400 hover:text-white hover:bg-blue-500 transition-all shadow-md"
+                                    title="Edit Seats"
+                                >
+                                    <FaPen size={12} />
+                                </button>
+                                <button 
+                                    onClick={() => handleDelete(table._id)}
+                                    className="bg-[#2a2a2a] p-2 rounded-xl text-red-500 hover:text-white hover:bg-red-500 transition-all shadow-md"
+                                    title="Delete Table"
+                                >
+                                    <FaTrash size={12} />
+                                </button>
+                            </div>
+
+                            {/* --- ICON CONTAINER (Ikut berubah warna) --- */}
+                            <div className={`p-4 rounded-2xl mb-3 border transition-colors ${
+                                isUnavailable 
                                 ? 'bg-red-500/10 text-red-500 border-red-500/20' 
                                 : 'bg-green-500/10 text-green-500 border-green-500/20'
                             }`}>
-                                {table.status || "Available"}
+                                <MdTableRestaurant size={32} />
+                            </div>
+
+                            <div className="text-center w-full">
+                                <h3 className="text-white font-black text-lg">T-{table.tableNo || table.table}</h3>
+                                <div className="flex items-center justify-center gap-2 text-gray-400 text-xs mt-1">
+                                    <FaChair size={10} className="text-yellow-500/50" />
+                                    <span className="font-medium">{table.seats} Seats</span>
+                                </div>
+                                
+                                {/* --- STATUS BADGE --- */}
+                                <div className={`mt-3 py-1 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider inline-block border ${
+                                    isUnavailable 
+                                    ? 'bg-red-500/10 text-red-500 border-red-500/20' 
+                                    : 'bg-green-500/10 text-green-500 border-green-500/20'
+                                }`}>
+                                    {table.status || "Available"}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* --- MODAL EDIT (INLINE) --- */}
