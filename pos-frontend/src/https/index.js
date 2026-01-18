@@ -6,7 +6,9 @@ const api = axios.create({
     headers: {
         Accept: "application/json",
     }
+    
 })
+console.log("Backend URL yang terbaca:", import.meta.env.VITE_BACKEND_URL);
 
 // 1. AUTH
 export const login = (data) => api.post("/api/user/login", data);

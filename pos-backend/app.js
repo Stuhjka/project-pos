@@ -12,8 +12,9 @@ const dishRoutes = require("./routes/dishRoute");
 // Middleware 
 // 👇 2. PASANG INI (PENTING BANGET!)
 app.use(cors({
-    origin: "http://localhost:5173", // Alamat Frontend (Vite)
-    credentials: true // Biar Cookie Token boleh lewat
+    // Tanpa tanda kutip di process.env-nya ya men!
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true 
 }));
 
 app.use(express.json()); 
